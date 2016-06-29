@@ -15,14 +15,18 @@ namespace ReviewSite
             routes.MapRoute(
             name: "IdOnly",
             url: "{id}",
-            defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            defaults: new { controller = "Reviews", action = "Index", id = UrlParameter.Optional }
             );
             routes.MapRoute(
                 name: "ControllerId",
                 url: "{controller}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                defaults: new { controller = "Reviews", action = "Index", id = UrlParameter.Optional }
             );
-
+            routes.MapRoute(
+                name: "ControllerOnly",
+                url: "{controller}",
+                defaults: new { controller = "Reviews", action = "Index", id = UrlParameter.Optional }
+            );
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

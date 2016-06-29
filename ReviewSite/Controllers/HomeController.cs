@@ -11,7 +11,7 @@ namespace ReviewSite.Controllers
         // GET: Home
         public ActionResult Index(string id)
         {
-            return View();
+            return RedirectToAction("Index", "Reviews");
         }
     }
 }
