@@ -1,6 +1,10 @@
 ﻿
 @{
-    ViewBag.Title = "Index";
+
+    ReviewSite.Models.Article article = ViewBag.Article;
+    if (article.Title != null)
+    {ViewBag.Title = article.Title;}
+    else{ViewBag.Title = "Reviews";}
 }
 
 <div class="container">
@@ -8,21 +12,40 @@
     <div class="row">
         <div class="col-lg-8">
 
-            <!-- the actual blog post: title/author/date/content -->
-            <h1>***ARTICLE TITLE HERE***</h1>
-            <p class="lead">
-                by <a href="index.php">***AUTHOR***</a>
-            </p>
-            <hr>
-            <p>
-                <span class="glyphicon glyphicon-time"></span> Posted on ***DATE HERE***
-            </p>
-            <hr>
-            <img src="http://placehold.it/900x300" class="img-responsive">
-            <hr>
-            <p class="lead">***LEAD TEXT***</p>
-            <p>***BODY TEXT***</p>
-            <hr>
+            @if (article.Title != null)
+            {
+                <h1>@article.Title</h1>
+            }
+            @if (article.Author != null)
+            {
+                <p class="lead">
+                    by <a href="index.php">@article.Author</a>
+                </p>
+                <hr>
+            }
+            @if (article.PostedDate != null)
+            {
+                <p>
+                    <span class="glyphicon glyphicon-time"></span> Posted on @article.PostedDate
+                </p>
+                <hr>
+            }
+            @if (article.ImageUrl != null)
+            {
+                <img src="@article.ImageUrl" class="img-responsive">
+                <hr>
+            }
+
+            @if (article.LeadText != null)
+            {
+                <p class="lead">@article.LeadText</p>
+            }
+            @if (article.BodyText != null)
+            {
+                <p>@Html.Raw(article.BodyText)</p>
+                <hr>
+            }        
+           
         </div>
 
         <div class="col-lg-4">
