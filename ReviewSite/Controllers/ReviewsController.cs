@@ -13,7 +13,7 @@ namespace ReviewSite.Controllers
         {
          //   Helpers.Scrape rd = new Helpers.Scrape();
           //  rd.ParseRdSlides();
-            Helpers.LinkScrape.ParseRdSlides("site%3Awired.com+review&oq=site%3Awired.com+review", 3);
+            Helpers.LinkScrape.ParseRdSlides("site%3Awired.com+review&oq=site%3Awired.com+review", 10);
             ViewBag.Article = Helpers.ArticleHelper.GetArticle(id);
             return View();
         }
