@@ -11,11 +11,18 @@ namespace ReviewSite.Controllers
         // GET: Reviews
         public ActionResult Index(string id)
         {
-         //   Helpers.Scrape rd = new Helpers.Scrape();
-          //  rd.ParseRdSlides();
-            Helpers.LinkScrape.ParseRdSlides("site%3Awired.com+review&oq=site%3Awired.com+review", 10);
+            if (Request.QueryString["scrape"] != null)
+                Helpers.Scrape.ScrapeWiredArticles();
+            //Helpers.LinkScrape.GetGoogleResultUrls("site%3Awired.com+review&oq=site%3Awired.com+review", 10);
             ViewBag.Article = Helpers.ArticleHelper.GetArticle(id);
             return View();
         }
+
+        public ActionResult Scrape()
+        {
+
+            return View();
+        }
+      
     }
 }

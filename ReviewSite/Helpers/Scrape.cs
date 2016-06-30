@@ -9,52 +9,99 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.Data;
+using System.Text.RegularExpressions;
 
 namespace ReviewSite.Helpers
 {
     public class Scrape
     {
-
-        public static void ParseRdSlides(string url)
-        {
-            string html = "";
-
-            using (var client = new WebClient())
-            {
-                html = client.DownloadString(url);
-            }
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(html);
-
-            //var fullSlides = GetElementsByClass(doc, "rd-slide-full");
-            //var titles = GetElementsByClass(doc, "rd-slide-title");
-            //var images = GetElementsByClass(doc, "rd-slide-img");
-            //var bodies = GetElementsByClass(doc, "rd-slide-caption");
-        }
-
-        public static IEnumerable<HtmlAgilityPack.HtmlNode> GetElementsByClass(HtmlAgilityPack.HtmlDocument doc,
+        private static IEnumerable<HtmlAgilityPack.HtmlNode> GetElementsByClass(HtmlAgilityPack.HtmlDocument doc,
             string className)
         {
             return doc.DocumentNode.Descendants("div")
                 .Where(c => c.Attributes.Contains("class") && c.Attributes["class"].Value.Contains(className));
         }
 
-        public  static IEnumerable<HtmlAgilityPack.HtmlNode> GetElementsByTag(HtmlAgilityPack.HtmlDocument doc, string tagName)
+        private static HtmlAgilityPack.HtmlDocument PullAgilityHtml(string url)
         {
-            return doc.DocumentNode.Descendants("body")
-                .Where(c => c.Attributes.Contains(tagName));
+            string html = "";
+
+            using (var client = new WebClient())
+            {
+                html = client.DownloadString(FixUrl(url));
+            }
+            var doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(html);
+
+            return doc;
         }
 
-    }
+        private static string FixUrl(string url)
+        {
+            return !url.StartsWith("http") ? "http://" + url : url;
+        }
 
-    public class LinkScrape
+
+
+        public static int ScrapeWiredArticles()
+        {
+            var articleUrls = new List<string>();
+            var articles = new List<Models.Article>();
+            var urls = LinkScrape.StoredProcHelper("GetUnscrapedArticleUrls");
+            string articleTitle = null;
+            for (var i = 0; i < urls.Rows.Count; i++)
+                articleUrls.Add(urls.Rows[i][1].ToString());
+
+            foreach (var articleUrl in articleUrls)
+            {
+                var doc = PullAgilityHtml(articleUrl);
+                var articleContent = doc.DocumentNode.Descendants("article").FirstOrDefault();
+                //var articleDate = doc.DocumentNode.Descendants("time");
+                if (articleContent != null)
+                {
+                    var ul = doc.DocumentNode.SelectSingleNode("//ul");
+                    ul.ParentNode.RemoveChild(ul);
+                    var a = doc.DocumentNode.SelectSingleNode("//a");
+                    a.ParentNode.RemoveChild(a,true);
+                }
+                if (!articleUrl.Contains(".pdf"))
+                {
+                    articleTitle = doc.DocumentNode.Descendants("title").FirstOrDefault().InnerText;
+                    articleTitle = articleTitle.Replace("WIRED", "");
+                    articleTitle = articleTitle.Replace("|", "");
+                    articleTitle = articleTitle.Trim();
+                }
+
+                if (articleContent == null) continue;
+
+                var temp = new Models.Article();
+                temp.OriginalUrl = articleUrl;
+                temp.BodyText = articleContent.InnerHtml;
+                temp.TextId = PullTextId(articleUrl);
+                if (articleTitle != null) temp.Title = articleTitle;
+                //if (articleDate != null) temp.PostedDate = articleDate.InnerText;
+
+                articles.Add(temp);
+            }
+            return ArticleHelper.WriteArticleCollection(articles);
+        }
+
+        private static string PullTextId(string text)
+        {
+            var pattern = @"\/(.*?)\/";
+            var matches = Regex.Matches(text, pattern);
+            return matches[matches.Count - 1].Value.Replace("/","");
+        }
+    }
+}
+
+public class LinkScrape
     {
-        public static void ParseRdSlides(string searchTerm, int pages)
+        public static void GetGoogleResultUrls(string searchTerm, int pages)
         {
             List<string> googleQueue = new List<string>();
             List<string> googleHtml = new List<string>();
-            List<string> scrapeList = new List<string>();
-            List<string> links = new List<string>();
             StringBuilder cmdText = new StringBuilder();
             cmdText.Append("insert into [DB_9FEBFD_cboseak].[dbo].[ScrapeLinks](url) values ");
             googleQueue.Add("https://www.google.com/search?q=" + searchTerm + "&num=100");
@@ -68,14 +115,15 @@ namespace ReviewSite.Helpers
                 {
                     try
                     {
+                        //try using webclient, first...
                         string html = client.DownloadString(page);
                         googleHtml.Add(html);
 
                     }
                     catch
                     {
+                        //...if that fails, its usually because of cross-domain issues so try requesting html as a browser
                         WebProcessor wp = new WebProcessor();
-
                         string html = wp.GetGeneratedHTML(page);
                         googleHtml.Add(html);
                     }
@@ -91,10 +139,10 @@ namespace ReviewSite.Helpers
                     cmdText.Append("('" + url.InnerText + "'),");
                 }
             }
-            SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["db"].ConnectionString);
-            cn.Open();
-            SqlCommand cmd = new SqlCommand(cmdText.ToString(), cn);
-            cmd.ExecuteNonQuery();
+            string stmt = cmdText.ToString().Replace("{", "");
+            stmt = stmt.Replace("}", "");
+            NonQueryHelper(stmt);
+
         }
         public static string AlternateGetHtml(string url){
                         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -108,6 +156,26 @@ namespace ReviewSite.Helpers
             response.Close ();
             readStream.Close ();
             return html;
+        }
+
+        public static int NonQueryHelper(string stmt)
+        {
+            SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["db"].ConnectionString);
+            cn.Open();
+            SqlCommand cmd = new SqlCommand(stmt, cn);
+            return cmd.ExecuteNonQuery();
+        }
+        public static DataTable StoredProcHelper(string proc, SqlParameterCollection parameters = null)
+        {
+            SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["db"].ConnectionString);
+            cn.Open();
+            SqlCommand cmd = new SqlCommand(proc, cn) {CommandType = CommandType.StoredProcedure};
+            if (parameters != null) 
+                foreach (var param in parameters)
+                    cmd.Parameters.Add(param);
+            DataTable dt = new DataTable();
+            dt.Load(cmd.ExecuteReader());
+            return dt;
         }
     }
     public class WebProcessor
@@ -152,4 +220,3 @@ namespace ReviewSite.Helpers
             GeneratedSource = wb.Document.Body.InnerHtml;
         }
     }
-}

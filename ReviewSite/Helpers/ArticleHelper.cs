@@ -21,14 +21,26 @@ namespace ReviewSite.Helpers
                     return articles.FirstOrDefault();
 
                 var allRecords = from a in context.Articles
+                                 orderby a.Id
                     select a;
-                //var count = allRecords.Count() - 1;
-                //Random rand = new Random();
-                //int randonRecord = rand.Next(0, count);
-                
-                return allRecords.FirstOrDefault();
+                Random rand = new Random();
+                int randonRecord = rand.Next(0, allRecords.Count() - 1);
 
+                return allRecords.Count() > 2 ? allRecords.Skip(randonRecord).FirstOrDefault() : allRecords.FirstOrDefault();
             }
+        }
+
+        public static int WriteArticleCollection(List<Article> articles)
+        {
+            using (var context = new DB_9FEBFD_cboseakEntities())
+            {
+                foreach (var article in articles)
+                {
+                    context.Articles.Add(article);
+                }
+                return context.SaveChanges();
+            }
+
         }
     }
 }
