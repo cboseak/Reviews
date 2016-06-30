@@ -1,4 +1,5 @@
-﻿
+﻿@using System.Text.RegularExpressions
+
 @{
 
     ReviewSite.Models.Article article = ViewBag.Article;
@@ -25,7 +26,7 @@
             @if (article.Author != null)
             {
                 <p class="lead">
-                    by <a href="index.php">@article.Author</a>
+                    by <a href="#">@article.Author</a>
                 </p>
                 <hr>
             }
@@ -48,13 +49,24 @@
             }
             @if (article.BodyText != null)
             {
-                <p>@Html.Raw(article.BodyText)</p>
-                <hr>
+                string body = article.BodyText;
+                body = body.Replace('\n', ' ');
+                body = body.Replace('\r', ' ');
+                int pos = body.IndexOf("<a class=\"visually");
+                if (pos != -1)
+                {
+                    body = body.Substring(0, pos);
+                }
+                body = body.Replace("wired", "electricienmoinscher");
+                body = body.Replace("https", "http");
+                <p>@Html.Raw(body)</p>
+                <br/>
+            <hr>
             }        
            
         </div>
 
-        <div class="col-lg-4">
+        <div class="col -lg-4">
             <!-- /well -->
             <div class="well" style="margin-top: 20px;">
                 <h4>Popular Categories</h4>
@@ -62,27 +74,26 @@
                     <div class="col-lg-6">
                         <ul class="list-unstyled">
                             <li>
-                                @{ string link1Url = Html.Action("index") + "/" + link1.TextId; }
-                                <a href="@link1Url">@link1.Title;</a>
+                                <a href="/@link1.TextId">@link1.Title</a>
                             </li>
                             <li>
-                                <a href="#">LINK 2</a>
+                                <a href="/@link2.TextId">@link2.Title</a>
                             </li>
                             <li>
-                                <a href="#">LINK 3</a>
+                                <a href="/@link3.TextId">@link3.Title</a>
                             </li>
                         </ul>
                     </div>
                     <div class="col-lg-6">
                         <ul class="list-unstyled">
                             <li>
-                                <a href="#">LINK 1</a>
+                                <a href="/@link4.TextId">@link4.Title</a>
                             </li>
                             <li>
-                                <a href="#">LINK 2</a>
+                                <a href="/@link5.TextId">@link5.Title</a>
                             </li>
                             <li>
-                                <a href="#">LINK 3</a>
+                                <a href="/@link6.TextId">@link6.Title</a>
                             </li>
                         </ul>
                     </div>
