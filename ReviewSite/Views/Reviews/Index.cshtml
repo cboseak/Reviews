@@ -49,7 +49,7 @@
             }
             @if (article.BodyText != null)
             {
-                string body = article.BodyText;
+                string body = WebUtility.HtmlDecode(article.BodyText);
                 body = body.Replace('\n', ' ');
                 body = body.Replace('\r', ' ');
                 int pos = body.IndexOf("<a class=\"visually");

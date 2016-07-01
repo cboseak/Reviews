@@ -13,8 +13,10 @@ namespace ReviewSite.Controllers
         {
             if (Request.QueryString["scrape"] != null)
                 Helpers.Scrape.ScrapeWiredArticles();
+            var r = Request;
             //Helpers.LinkScrape.GetGoogleResultUrls("site%3Awired.com+review&oq=site%3Awired.com+review", 10);
             ViewBag.Article = Helpers.ArticleHelper.GetArticle(id);
+            if (Request.Url != null) ViewBag.Brand = Request.Url.DnsSafeHost;
             return View();
         }
 
