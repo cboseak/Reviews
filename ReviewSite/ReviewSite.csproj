@@ -172,6 +172,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ArticleModel.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\UserInfoModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
