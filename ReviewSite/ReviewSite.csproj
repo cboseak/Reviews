@@ -153,6 +153,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ArticleHelper.cs" />
+    <Compile Include="Helpers\ArticleSpinner.cs" />
     <Compile Include="Helpers\Scrape.cs" />
     <Compile Include="Models\Article.cs">
       <DependentUpon>ArticleModel.tt</DependentUpon>
