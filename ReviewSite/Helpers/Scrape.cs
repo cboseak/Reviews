@@ -145,7 +145,7 @@ public class LinkScrape
 
         }
         public static string AlternateGetHtml(string url){
-                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.MaximumAutomaticRedirections = 4;
             request.MaximumResponseHeadersLength = 4;
             request.Credentials = CredentialCache.DefaultCredentials;
