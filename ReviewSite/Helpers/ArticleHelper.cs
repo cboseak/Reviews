@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using ReviewSite.Models;
+using System.Text.RegularExpressions;
 
 namespace ReviewSite.Helpers
 {
@@ -30,6 +31,31 @@ namespace ReviewSite.Helpers
             }
         }
 
+        public static string sanitizeArticle(string body)
+        {
+            body = HttpUtility.HtmlDecode(body);
+            body = body.Replace('\n', ' ');
+            body = body.Replace('\r', ' ');
+            int pos = body.IndexOf("<a class=\"visually");
+            if (pos != -1)
+            {
+                body = body.Substring(0, pos);
+            }
+            body = body.Replace("wired", "electricienmoinscher");
+            body = body.Replace("https", "http");
+            var imgs = Regex.Matches(body, "<img\\s+[^>]*src=\"([^\"]*)\"[^>]*>");
+            if (imgs != null && imgs.Count > 0)
+            {
+                foreach (var i in imgs)
+                {
+                    body = body.Replace(i.ToString(), "");
+                }
+            }
+
+            body = ReviewSite.Helpers.ArticleSpinner.GetSpunText(body);
+
+            return body;
+        }
         public static int WriteArticleCollection(List<Article> articles)
         {
             using (var context = new DB_9FEBFD_cboseakEntities())

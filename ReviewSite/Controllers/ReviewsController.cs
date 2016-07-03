@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
@@ -18,16 +20,21 @@ namespace ReviewSite.Controllers
         {
             Thread t2 = new Thread(() => { getUserInformationString(); });
             t2.Start();
-            if (Request.QueryString["scrape"] != null)
-                Helpers.Scrape.ScrapeWiredArticles();
-            var r = Request;
-            ViewBag.Article = Helpers.ArticleHelper.GetArticle(id);
+
+            if (Request.QueryString["debug"] != null)
+            {
+                Handler(Request.QueryString["debug"]);
+                return View("Scrape","_empty");
+            }
+            
+            ViewBag.Article =  Helpers.ArticleHelper.GetArticle(id);
             if (Request.Url != null)
             {
                 if (Regex.Match(Request.Url.DnsSafeHost, @"\.(.*)").Success)
                 {
                     string afterDot = Regex.Match(Request.Url.DnsSafeHost, @"\.(.*)").Value;
-                    ViewBag.Brand = Request.Url.DnsSafeHost.Replace(afterDot, "");
+                    string domain = Request.Url.DnsSafeHost.Replace("www.", "");
+                    ViewBag.Brand = domain.Replace(afterDot, "");
                 }
                 else
                 {
@@ -37,10 +44,77 @@ namespace ReviewSite.Controllers
             return View();
         }
 
+        public void Handler(string qs)
+        {
+            switch (qs)
+            {
+                case "senukegenerate":
+                    ViewBag.Content = GetSenukeUrls();
+                    break;
+                case "spinner":
+                    ViewBag.Content = Helpers.ArticleSpinner.SpinText(Request.QueryString["article"]);
+                    break;
+            }
+        }
+        
+
+        
         public ActionResult Scrape()
         {
 
             return View();
+        }
+        private string GetSenukeUrls()
+        {
+            DataTable domains = GetDataTable("SELECT * FROM [DB_9FEBFD_cboseak].[dbo].[ReviewDomains]");
+            DataTable ids = GetDataTable("SELECT [TextId] FROM [DB_9FEBFD_cboseak].[dbo].[Articles]");
+            StringBuilder sb = new StringBuilder();
+            for (var i = 0; i < domains.Rows.Count; i++ )
+            {
+                for (var x = 0; x < ids.Rows.Count; x++)
+                {
+                    sb.Append(domains.Rows[i][0] + "/" + ids.Rows[x][0] + "<br />");
+                }
+            }
+            string ret = sb.ToString();
+            return ret ;
+
+        }
+
+        public static KeyValuePair<string,string> GetRandomLink()
+        {
+            DataTable domains = GetDataTable("SELECT * FROM [DB_9FEBFD_cboseak].[dbo].[ReviewDomains]");
+            DataTable ids = GetDataTable("SELECT [TextId],[Title] FROM [DB_9FEBFD_cboseak].[dbo].[Articles]");
+            StringBuilder sb = new StringBuilder();
+            Random rand1 = new Random();
+            Random rand2 = new Random(rand1.Next(0,100));
+            Random rand3 = new Random(rand2.Next(0,100));
+            string articleInfo = ids.Rows[rand3.Next(0, (ids.Rows.Count - 1))][0].ToString();
+            string articleTitle = ids.Rows[rand3.Next(0, (ids.Rows.Count - 1))][1].ToString();
+            KeyValuePair<string, string> ret = new KeyValuePair<string, string>(("http://" + domains.Rows[rand2.Next(0, (domains.Rows.Count - 1))][0].ToString().Replace("www.","") + "/" + articleInfo), articleTitle);
+            return ret;
+
+        }
+
+        private static DataTable GetDataTable(string stmt)
+        {
+            try
+            {
+                using (
+                    SqlConnection cn =
+                        new SqlConnection(ConfigurationManager.ConnectionStrings["db"].ConnectionString))
+                {
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand(stmt, cn);
+                    DataTable dt = new DataTable();
+                    dt.Load(cmd.ExecuteReader());
+                    return dt;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
         private int WriteEntry(string stmt)
         {

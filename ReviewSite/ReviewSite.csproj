@@ -60,6 +60,9 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NHunspell">
+      <HintPath>..\packages\NHunspell.1.2.5554.16953\lib\net\NHunspell.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
@@ -123,6 +126,15 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>ArticleModel.Designer.cs</LastGenOutput>
     </EntityDeploy>
+    <Content Include="Helpers\en_US.aff" />
+    <Content Include="Helpers\en_US.dic" />
+    <Content Include="Helpers\th_en_US_new.dat" />
+    <None Include="Hunspellx64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Hunspellx86.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Models\ArticleModel.edmx.diagram">
       <DependentUpon>ArticleModel.edmx</DependentUpon>
     </Content>
@@ -184,6 +196,7 @@
     <Content Include="Views\Reviews\Index.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Reviews\Scrape.cshtml" />
+    <Content Include="Views\Shared\_empty.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

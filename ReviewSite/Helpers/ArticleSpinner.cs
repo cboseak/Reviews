@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NHunspell;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,14 +8,12 @@ using System.Web;
 namespace ReviewSite.Helpers
 {
     public class ArticleSpinner
-    {/*
+    {
         public static string SpinText(string text)
         {
             var words = text.Split(' ');
-
-
-            MyThes thes = new MyThes("th_en_US_new.dat");
-            Hunspell hunspell = new Hunspell("en_US.aff", "en_US.dic");
+            MyThes thes = new MyThes(HttpRuntime.AppDomainAppPath + "th_en_US_new.dat");
+            Hunspell hunspell = new Hunspell(HttpRuntime.AppDomainAppPath + "en_US.aff", HttpRuntime.AppDomainAppPath + "en_US.dic");
             for (var i = 0; i < words.Length; i++)
             {
                 StringBuilder sb = new StringBuilder();
@@ -25,7 +24,6 @@ namespace ReviewSite.Helpers
                     {
                         foreach (string synonym in meaning.Synonyms)
                         {
-
                             sb.Append(synonym + "|");
                         }
                     }
@@ -41,9 +39,8 @@ namespace ReviewSite.Helpers
         {
             var words = text.Split(' ');
 
-
-            MyThes thes = new MyThes("th_en_US_new.dat");
-            Hunspell hunspell = new Hunspell("en_US.aff", "en_US.dic");
+            MyThes thes = new MyThes(HttpRuntime.AppDomainAppPath + "th_en_US_new.dat");
+            Hunspell hunspell = new Hunspell(HttpRuntime.AppDomainAppPath + "en_US.aff", HttpRuntime.AppDomainAppPath + "en_US.dic");
             for (var i = 0; i < words.Length; i++)
             {
                 StringBuilder sb = new StringBuilder();
@@ -53,8 +50,11 @@ namespace ReviewSite.Helpers
                     foreach (ThesMeaning meaning in tr.Meanings)
                     {
                         Random random = new Random();
-
-                        words[i] = meaning.Synonyms[random.Next(0, meaning.Synonyms.Count())];
+                        int randNum = random.Next(0, meaning.Synonyms.Count());
+                        if (randNum % 5 == 0)
+                        {
+                            words[i] = meaning.Synonyms[randNum];
+                        }
                     }
                 }
             }
@@ -67,8 +67,8 @@ namespace ReviewSite.Helpers
             var words = text.Split(' ');
 
 
-            MyThes thes = new MyThes("th_en_US_new.dat");
-            Hunspell hunspell = new Hunspell("en_US.aff", "en_US.dic");
+            MyThes thes = new MyThes(HttpRuntime.AppDomainAppPath + "th_en_US_new.dat");
+            Hunspell hunspell = new Hunspell(HttpRuntime.AppDomainAppPath + "en_US.aff", HttpRuntime.AppDomainAppPath + "en_US.dic");
             for (var i = 0; i < words.Length; i++)
             {
                 StringBuilder sb = new StringBuilder();
@@ -85,6 +85,6 @@ namespace ReviewSite.Helpers
             }
             text = string.Join(" ", words);
             return text;
-        }*/
+        }
     }
 }
