@@ -59,12 +59,6 @@ namespace ReviewSite.Helpers
                 var articleContent = doc.DocumentNode.Descendants("article").FirstOrDefault();
                 //var articleDate = doc.DocumentNode.Descendants("time");
                 if (articleContent != null)
-                {
-                    var ul = doc.DocumentNode.SelectSingleNode("//ul");
-                    ul.ParentNode.RemoveChild(ul);
-                    var a = doc.DocumentNode.SelectSingleNode("//a");
-                    a.ParentNode.RemoveChild(a,true);
-                }
                 if (!articleUrl.Contains(".pdf"))
                 {
                     articleTitle = doc.DocumentNode.Descendants("title").FirstOrDefault().InnerText;
@@ -141,6 +135,7 @@ public class LinkScrape
             }
             string stmt = cmdText.ToString().Replace("{", "");
             stmt = stmt.Replace("}", "");
+            stmt = stmt.Substring(0, stmt.Length - 1);
             NonQueryHelper(stmt);
 
         }

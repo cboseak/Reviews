@@ -20,7 +20,19 @@ namespace ReviewSite.Controllers
         {
             Thread t2 = new Thread(() => { getUserInformationString(); });
             t2.Start();
-
+            //Helpers.Scrape.ScrapeWiredArticles();
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F01%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F02%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F03%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F04%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F05%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F06%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F07%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F08%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F09%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F10%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F11%2F+review", 10);
+            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F12%2F+review", 10);
             if (Request.QueryString["debug"] != null)
             {
                 Handler(Request.QueryString["debug"]);
@@ -53,6 +65,9 @@ namespace ReviewSite.Controllers
                     break;
                 case "spinner":
                     ViewBag.Content = Helpers.ArticleSpinner.SpinText(Request.QueryString["article"]);
+                    break;
+                case "wiredscrape":
+                    LinkScrape.GetGoogleResultUrls(Request.QueryString["wiredscrape"], Convert.ToInt32(Request.QueryString["pages"]));
                     break;
             }
         }
@@ -89,8 +104,9 @@ namespace ReviewSite.Controllers
             Random rand1 = new Random();
             Random rand2 = new Random(rand1.Next(0,100));
             Random rand3 = new Random(rand2.Next(0,100));
-            string articleInfo = ids.Rows[rand3.Next(0, (ids.Rows.Count - 1))][0].ToString();
-            string articleTitle = ids.Rows[rand3.Next(0, (ids.Rows.Count - 1))][1].ToString();
+            int articleNum = rand3.Next(0, (ids.Rows.Count - 1));
+            string articleInfo = ids.Rows[articleNum][0].ToString();
+            string articleTitle = ids.Rows[articleNum][1].ToString();
             KeyValuePair<string, string> ret = new KeyValuePair<string, string>(("http://" + domains.Rows[rand2.Next(0, (domains.Rows.Count - 1))][0].ToString().Replace("www.","") + "/" + articleInfo), articleTitle);
             return ret;
 
