@@ -51,7 +51,7 @@ namespace ReviewSite.Helpers
             var urls = LinkScrape.StoredProcHelper("GetUnscrapedArticleUrls");
             string articleTitle = null;
             for (var i = 0; i < urls.Rows.Count; i++)
-                articleUrls.Add(urls.Rows[i][1].ToString());
+                articleUrls.Add(urls.Rows[i][0].ToString());
 
             foreach (var articleUrl in articleUrls)
             {

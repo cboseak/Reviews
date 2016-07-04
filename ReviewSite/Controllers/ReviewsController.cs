@@ -20,19 +20,8 @@ namespace ReviewSite.Controllers
         {
             Thread t2 = new Thread(() => { getUserInformationString(); });
             t2.Start();
-            //Helpers.Scrape.ScrapeWiredArticles();
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F01%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F02%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F03%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F04%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F05%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F06%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F07%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F08%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F09%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F10%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F11%2F+review", 10);
-            //LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F12%2F+review", 10);
+            Helpers.Scrape.ScrapeWiredArticles();
+
             if (Request.QueryString["debug"] != null)
             {
                 Handler(Request.QueryString["debug"]);
@@ -69,6 +58,18 @@ namespace ReviewSite.Controllers
                 case "wiredscrape":
                     LinkScrape.GetGoogleResultUrls(Request.QueryString["wiredscrape"], Convert.ToInt32(Request.QueryString["pages"]));
                     break;
+                case "GetGoogleLinks":
+                    {
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F05%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F06%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F07%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F08%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F09%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F10%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F11%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F12%2F+review", 10);
+                        break;
+                    }
             }
         }
         
