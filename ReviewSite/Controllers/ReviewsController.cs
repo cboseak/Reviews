@@ -58,7 +58,7 @@ namespace ReviewSite.Controllers
                 case "wiredscrape":
                     LinkScrape.GetGoogleResultUrls(Request.QueryString["wiredscrape"], Convert.ToInt32(Request.QueryString["pages"]));
                     break;
-                case "GetGoogleLinks":
+                case "getgooglelinks":
                     {
                         LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F05%2F+review", 10);
                         LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F06%2F+review", 10);
@@ -68,6 +68,18 @@ namespace ReviewSite.Controllers
                         LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F10%2F+review", 10);
                         LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F11%2F+review", 10);
                         LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F12%2F+review", 10);
+                        break;
+                    }
+                case "getbinglinks":
+                    {
+                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2016%2F05%+review", 5);
+                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2016%2F06%+review", 5);
+                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F07%+review", 5);
+                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F08%+review", 5);
+                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F09%+review", 5);
+                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F10%+review", 5);
+                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F11%+review", 5);
+                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F12%+review", 5);
                         break;
                     }
             }

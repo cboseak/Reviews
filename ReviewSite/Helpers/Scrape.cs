@@ -92,53 +92,98 @@ namespace ReviewSite.Helpers
 
 public class LinkScrape
     {
-        public static void GetGoogleResultUrls(string searchTerm, int pages)
+    public static void GetBingResultUrls(string searchTerm, int pages)
+    {
+        List<string> googleQueue = new List<string>();
+        List<string> googleHtml = new List<string>();
+        StringBuilder cmdText = new StringBuilder();
+        cmdText.Append("insert into [DB_9FEBFD_cboseak].[dbo].[ScrapeLinks](url) values ");
+        for (var i = 1; i < pages; i++)
         {
-            List<string> googleQueue = new List<string>();
-            List<string> googleHtml = new List<string>();
-            StringBuilder cmdText = new StringBuilder();
-            cmdText.Append("insert into [DB_9FEBFD_cboseak].[dbo].[ScrapeLinks](url) values ");
-            googleQueue.Add("https://www.google.com/search?q=" + searchTerm + "&num=100");
-            for (var i = 1; i < pages; i++)
-            {
-                googleQueue.Add("https://www.google.com/search?q=" + searchTerm + "&num=100&start=" + i + "00");
-            }
-            foreach (var page in googleQueue)
-            {
-                using (var client = new WebClient())
-                {
-                    try
-                    {
-                        //try using webclient, first...
-                        string html = client.DownloadString(page);
-                        googleHtml.Add(html);
-
-                    }
-                    catch
-                    {
-                        //...if that fails, its usually because of cross-domain issues so try requesting html as a browser
-                        WebProcessor wp = new WebProcessor();
-                        string html = wp.GetGeneratedHTML(page);
-                        googleHtml.Add(html);
-                    }
-                }
-            }
-            foreach (var src in googleHtml)
-            {
-                var doc = new HtmlAgilityPack.HtmlDocument();
-                doc.LoadHtml(src);
-                var urls = doc.DocumentNode.Descendants("cite");
-                foreach (var url in urls)
-                {
-                    cmdText.Append("('" + url.InnerText + "'),");
-                }
-            }
-            string stmt = cmdText.ToString().Replace("{", "");
-            stmt = stmt.Replace("}", "");
-            stmt = stmt.Substring(0, stmt.Length - 1);
-            NonQueryHelper(stmt);
-
+            googleQueue.Add("https://www.google.com/search?q=" + searchTerm + "&first=" + (i * 50));
         }
+        foreach (var page in googleQueue)
+        {
+            using (var client = new WebClient())
+            {
+                try
+                {
+                    //try using webclient, first...
+                    string html = client.DownloadString(page);
+                    googleHtml.Add(html);
+
+                }
+                catch
+                {
+                    //...if that fails, its usually because of cross-domain issues so try requesting html as a browser
+                    WebProcessor wp = new WebProcessor();
+                    string html = wp.GetGeneratedHTML(page);
+                    googleHtml.Add(html);
+                }
+            }
+        }
+        foreach (var src in googleHtml)
+        {
+            var doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(src);
+            var urls = doc.DocumentNode.Descendants("cite");
+            foreach (var url in urls)
+            {
+                cmdText.Append("('" + url.InnerText + "'),");
+            }
+        }
+        string stmt = cmdText.ToString().Replace("{", "");
+        stmt = stmt.Replace("}", "");
+        stmt = stmt.Substring(0, stmt.Length - 1);
+        NonQueryHelper(stmt);
+    }
+    public static void GetGoogleResultUrls(string searchTerm, int pages)
+    {
+        List<string> googleQueue = new List<string>();
+        List<string> googleHtml = new List<string>();
+        StringBuilder cmdText = new StringBuilder();
+        cmdText.Append("insert into [DB_9FEBFD_cboseak].[dbo].[ScrapeLinks](url) values ");
+        googleQueue.Add("https://www.google.com/search?q=" + searchTerm + "&num=100");
+        for (var i = 1; i < pages; i++)
+        {
+            googleQueue.Add("https://www.google.com/search?q=" + searchTerm + "&num=100&start=" + i + "00");
+        }
+        foreach (var page in googleQueue)
+        {
+            using (var client = new WebClient())
+            {
+                try
+                {
+                    //try using webclient, first...
+                    string html = client.DownloadString(page);
+                    googleHtml.Add(html);
+
+                }
+                catch
+                {
+                    //...if that fails, its usually because of cross-domain issues so try requesting html as a browser
+                    WebProcessor wp = new WebProcessor();
+                    string html = wp.GetGeneratedHTML(page);
+                    googleHtml.Add(html);
+                }
+            }
+        }
+        foreach (var src in googleHtml)
+        {
+            var doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(src);
+            var urls = doc.DocumentNode.Descendants("cite");
+            foreach (var url in urls)
+            {
+                cmdText.Append("('" + url.InnerText + "'),");
+            }
+        }
+        string stmt = cmdText.ToString().Replace("{", "");
+        stmt = stmt.Replace("}", "");
+        stmt = stmt.Substring(0, stmt.Length - 1);
+        NonQueryHelper(stmt);
+
+    }
         public static string AlternateGetHtml(string url){
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.MaximumAutomaticRedirections = 4;
@@ -173,45 +218,45 @@ public class LinkScrape
             return dt;
         }
     }
-    public class WebProcessor
+public class WebProcessor
+{
+    private string GeneratedSource { get; set; }
+    private string URL { get; set; }
+
+    public string GetGeneratedHTML(string url)
     {
-        private string GeneratedSource { get; set; }
-        private string URL { get; set; }
+        URL = url;
 
-        public string GetGeneratedHTML(string url)
-        {
-            URL = url;
+        Thread t = new Thread(new ThreadStart(WebBrowserThread));
+        t.SetApartmentState(ApartmentState.STA);
+        t.Start();
+        t.Join();
 
-            Thread t = new Thread(new ThreadStart(WebBrowserThread));
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
-            t.Join();
-
-            return GeneratedSource;
-        }
-
-        private void WebBrowserThread()
-        {
-            WebBrowser wb = new WebBrowser();
-            wb.Navigate(URL);
-
-            wb.DocumentCompleted +=
-                new WebBrowserDocumentCompletedEventHandler(
-                    wb_DocumentCompleted);
-
-            while (wb.ReadyState != WebBrowserReadyState.Complete)
-                Application.DoEvents();
-
-            //Added this line, because the final HTML takes a while to show up
-            GeneratedSource = wb.Document.Body.InnerHtml;
-
-            wb.Dispose();
-        }
-
-        private void wb_DocumentCompleted(object sender,
-            WebBrowserDocumentCompletedEventArgs e)
-        {
-            WebBrowser wb = (WebBrowser)sender;
-            GeneratedSource = wb.Document.Body.InnerHtml;
-        }
+        return GeneratedSource;
     }
+
+    private void WebBrowserThread()
+    {
+        WebBrowser wb = new WebBrowser();
+        wb.Navigate(URL);
+
+        wb.DocumentCompleted +=
+            new WebBrowserDocumentCompletedEventHandler(
+                wb_DocumentCompleted);
+
+        while (wb.ReadyState != WebBrowserReadyState.Complete)
+            Application.DoEvents();
+
+        //Added this line, because the final HTML takes a while to show up
+        GeneratedSource = wb.Document.Body.InnerHtml;
+
+        wb.Dispose();
+    }
+
+    private void wb_DocumentCompleted(object sender,
+        WebBrowserDocumentCompletedEventArgs e)
+    {
+        WebBrowser wb = (WebBrowser)sender;
+        GeneratedSource = wb.Document.Body.InnerHtml;
+    }
+}
