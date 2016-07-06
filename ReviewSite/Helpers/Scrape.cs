@@ -25,16 +25,23 @@ namespace ReviewSite.Helpers
 
         private static HtmlAgilityPack.HtmlDocument PullAgilityHtml(string url)
         {
-            string html = "";
-
-            using (var client = new WebClient())
+            try
             {
-                html = client.DownloadString(FixUrl(url));
-            }
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(html);
+                string html = "";
 
-            return doc;
+                using (var client = new WebClient())
+                {
+                    html = client.DownloadString(FixUrl(url));
+                }
+                var doc = new HtmlAgilityPack.HtmlDocument();
+                doc.LoadHtml(html);
+
+                return doc;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private static string FixUrl(string url)
@@ -56,6 +63,8 @@ namespace ReviewSite.Helpers
             foreach (var articleUrl in articleUrls)
             {
                 var doc = PullAgilityHtml(articleUrl);
+                if (doc == null)
+                    continue;
                 var articleContent = doc.DocumentNode.Descendants("article").FirstOrDefault();
                 //var articleDate = doc.DocumentNode.Descendants("time");
                 if (articleContent != null)

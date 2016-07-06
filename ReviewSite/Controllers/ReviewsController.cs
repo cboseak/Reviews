@@ -20,7 +20,7 @@ namespace ReviewSite.Controllers
         {
             Thread t2 = new Thread(() => { getUserInformationString(); });
             t2.Start();
-            Helpers.Scrape.ScrapeWiredArticles();
+            
 
             if (Request.QueryString["debug"] != null)
             {
@@ -56,18 +56,18 @@ namespace ReviewSite.Controllers
                     ViewBag.Content = Helpers.ArticleSpinner.SpinText(Request.QueryString["article"]);
                     break;
                 case "wiredscrape":
-                    LinkScrape.GetGoogleResultUrls(Request.QueryString["wiredscrape"], Convert.ToInt32(Request.QueryString["pages"]));
+                    Helpers.Scrape.ScrapeWiredArticles();
                     break;
                 case "getgooglelinks":
                     {
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F05%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2016%2F06%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F07%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F08%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F09%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F10%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F11%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2015%2F12%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F05%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F06%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F07%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F08%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F09%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F10%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F11%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F12%2F+review", 10);
                         break;
                     }
                 case "getbinglinks":
