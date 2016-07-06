@@ -14,7 +14,7 @@ namespace ReviewSite.Models
     
     public partial class Article
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string TextId { get; set; }
         public string Title { get; set; }
         public string Author { get; set; }

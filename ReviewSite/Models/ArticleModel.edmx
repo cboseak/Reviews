@@ -28,9 +28,9 @@
       <Schema Namespace="DB_9FEBFD_cboseakModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="Article">
           <Key>
-            <PropertyRef Name="Id" />
+            <PropertyRef Name="ID" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TextId" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Title" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Author" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
@@ -53,7 +53,7 @@
             <EntityTypeMapping TypeName="DB_9FEBFD_cboseakModel.Article">
               <MappingFragment StoreEntitySet="Articles">
                 <ScalarProperty Name="OriginalUrl" ColumnName="OriginalUrl" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ID" ColumnName="Id" />
                 <ScalarProperty Name="TextId" ColumnName="TextId" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
                 <ScalarProperty Name="Author" ColumnName="Author" />

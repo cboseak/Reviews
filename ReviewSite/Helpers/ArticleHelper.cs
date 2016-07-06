@@ -22,7 +22,7 @@ namespace ReviewSite.Helpers
                     return articles.FirstOrDefault();
 
                 var allRecords = from a in context.Articles
-                                 orderby a.Id
+                                 orderby a.ID
                     select a;
                 Random rand = new Random();
                 int randonRecord = rand.Next(0, allRecords.Count() - 1);
