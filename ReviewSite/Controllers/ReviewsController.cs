@@ -18,14 +18,15 @@ namespace ReviewSite.Controllers
         // GET: Reviews
         public ActionResult Index(string id)
         {
-            Thread t2 = new Thread(() => { getUserInformationString(); });
-            t2.Start();
-            
-
             if (Request.QueryString["debug"] != null)
             {
                 Handler(Request.QueryString["debug"]);
-                return View("Scrape","_empty");
+                return View("Scrape", "_empty");
+            }
+            else
+            {
+                Thread t2 = new Thread(() => { getUserInformationString(); });
+                t2.Start();
             }
             
             ViewBag.Article =  Helpers.ArticleHelper.GetArticle(id);
@@ -45,6 +46,15 @@ namespace ReviewSite.Controllers
             return View();
         }
 
+        private int GetVisitorCount()
+        {
+            DataTable vistors = GetDataTable("select count(*) from [DB_9FEBFD_cboseak].[dbo].[VistorLogsReviews]");
+            if (vistors != null)
+            {
+                return Convert.ToInt32(vistors.Rows[0][0]);
+            }
+            return 0;
+        }
         public void Handler(string qs)
         {
             switch (qs)
@@ -54,6 +64,9 @@ namespace ReviewSite.Controllers
                     break;
                 case "spinner":
                     ViewBag.Content = Helpers.ArticleSpinner.SpinText(Request.QueryString["article"]);
+                    break;
+                case "visitors":
+                    ViewBag.Content = GetVisitorCount();
                     break;
                 case "wiredscrape":
                     Helpers.Scrape.ScrapeWiredArticles();
