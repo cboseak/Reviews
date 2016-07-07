@@ -50,8 +50,7 @@ namespace ReviewSite.Helpers
                     foreach (ThesMeaning meaning in tr.Meanings)
                     {
                         Random random = new Random();
-                        Random SpinChooser =
-                            new Random(Convert.ToInt32((DateTime.Now - DateTime.Now.AddDays(-random.Next())).TotalMilliseconds));
+                        Random SpinChooser = new Random();
                         int randNum = random.Next(0, meaning.Synonyms.Count());
                         if (SpinChooser.Next() % 3 == 0)
                         {
