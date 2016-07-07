@@ -50,8 +50,10 @@ namespace ReviewSite.Helpers
                     foreach (ThesMeaning meaning in tr.Meanings)
                     {
                         Random random = new Random();
+                        Random SpinChooser =
+                            new Random(Convert.ToInt32((DateTime.Now - DateTime.Now.AddDays(-random.Next())).TotalMilliseconds));
                         int randNum = random.Next(0, meaning.Synonyms.Count());
-                        if (randNum % 2 == 0)
+                        if (SpinChooser.Next() % 3 == 0)
                         {
                             words[i] = meaning.Synonyms[randNum];
                         }
