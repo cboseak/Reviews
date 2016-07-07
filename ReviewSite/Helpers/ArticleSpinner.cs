@@ -51,7 +51,7 @@ namespace ReviewSite.Helpers
                     {
                         Random random = new Random();
                         int randNum = random.Next(0, meaning.Synonyms.Count());
-                        if (randNum % 5 == 0)
+                        if (randNum % 2 == 0)
                         {
                             words[i] = meaning.Synonyms[randNum];
                         }

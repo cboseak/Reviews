@@ -30,6 +30,11 @@ namespace ReviewSite.Controllers
             }
             
             ViewBag.Article =  Helpers.ArticleHelper.GetArticle(id);
+            SetBrand();
+            return View();
+        }
+        private void SetBrand()
+        {
             if (Request.Url != null)
             {
                 if (Regex.Match(Request.Url.DnsSafeHost, @"\.(.*)").Success)
@@ -43,9 +48,7 @@ namespace ReviewSite.Controllers
                     ViewBag.Brand = Request.Url.DnsSafeHost;
                 }
             }
-            return View();
         }
-
         private int GetVisitorCount()
         {
             DataTable vistors = GetDataTable("select count(*) from [DB_9FEBFD_cboseak].[dbo].[VistorLogsReviews]");
@@ -73,14 +76,14 @@ namespace ReviewSite.Controllers
                     break;
                 case "getgooglelinks":
                     {
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F05%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F06%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F07%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F08%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F09%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F10%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F11%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2008%2F12%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F05%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F06%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F07%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F08%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F09%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F10%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F11%2F+review", 10);
+                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F12%2F+review", 10);
                         break;
                     }
                 case "getbinglinks":
@@ -107,7 +110,11 @@ namespace ReviewSite.Controllers
         }
         private string GetSenukeUrls()
         {
-            DataTable domains = GetDataTable("SELECT * FROM [DB_9FEBFD_cboseak].[dbo].[ReviewDomains]");
+             DataTable domains;
+            if(Request.QueryString["top"] != null)
+                domains = GetDataTable("SELECT top "+ Request.QueryString["top"]+" * FROM [DB_9FEBFD_cboseak].[dbo].[ReviewDomains]");
+            else
+                domains = GetDataTable("SELECT * FROM [DB_9FEBFD_cboseak].[dbo].[ReviewDomains]");
             DataTable ids = GetDataTable("SELECT [TextId] FROM [DB_9FEBFD_cboseak].[dbo].[Articles]");
             StringBuilder sb = new StringBuilder();
             for (var i = 0; i < domains.Rows.Count; i++ )
