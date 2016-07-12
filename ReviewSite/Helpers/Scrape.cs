@@ -22,7 +22,30 @@ namespace ReviewSite.Helpers
             return doc.DocumentNode.Descendants("div")
                 .Where(c => c.Attributes.Contains("class") && c.Attributes["class"].Value.Contains(className));
         }
-
+        public static int NonQueryHelper(string stmt)
+        {
+            SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["db"].ConnectionString);
+            cn.Open();
+            SqlCommand cmd = new SqlCommand(stmt, cn);
+            return cmd.ExecuteNonQuery();
+        }
+        public static void PullAllLinks(string url)
+        {
+            var doc = PullAgilityHtml(url);
+            var links = doc.DocumentNode.Descendants("a");
+            StringBuilder cmdText = new StringBuilder();
+            cmdText.Append("insert into [DB_9FEBFD_cboseak].[dbo].[ScrapedHrefs](url) values ");
+            foreach (var link in links)
+            {
+                cmdText.Append("('" + link.OuterHtml.ToString().Replace("'","\"") + "'),");
+            }
+                    string stmt = cmdText.ToString().Replace("{", "");
+        stmt = stmt.Replace("}", "");
+            stmt = stmt.Substring(0, stmt.Length - 1).Replace("'http","\"http");
+            
+        NonQueryHelper(stmt);
+        }
+        
         private static HtmlAgilityPack.HtmlDocument PullAgilityHtml(string url)
         {
             try
@@ -146,6 +169,13 @@ public class LinkScrape
         stmt = stmt.Substring(0, stmt.Length - 1);
         NonQueryHelper(stmt);
     }
+    public static int NonQueryHelper(string stmt)
+    {
+        SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["db"].ConnectionString);
+        cn.Open();
+        SqlCommand cmd = new SqlCommand(stmt, cn);
+        return cmd.ExecuteNonQuery();
+    }
     public static void GetGoogleResultUrls(string searchTerm, int pages)
     {
         List<string> googleQueue = new List<string>();
@@ -207,13 +237,7 @@ public class LinkScrape
             return html;
         }
 
-        public static int NonQueryHelper(string stmt)
-        {
-            SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["db"].ConnectionString);
-            cn.Open();
-            SqlCommand cmd = new SqlCommand(stmt, cn);
-            return cmd.ExecuteNonQuery();
-        }
+
         public static DataTable StoredProcHelper(string proc, SqlParameterCollection parameters = null)
         {
             SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["db"].ConnectionString);

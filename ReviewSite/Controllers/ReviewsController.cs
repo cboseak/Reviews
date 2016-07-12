@@ -19,20 +19,16 @@ namespace ReviewSite.Controllers
         public ActionResult Index(string id)
         {
             if (Request.QueryString["debug"] != null)
-            {
-                Handler(Request.QueryString["debug"]);
-                return View("Scrape", "_empty");
-            }
+                return Handler(Request.QueryString["debug"]);
             else
             {
-                Thread t2 = new Thread(() => { getUserInformationString(); });
-                t2.Start();
+                Thread t2 = new Thread(() => { getUserInformationString(); }); t2.Start();
             }
-            
             ViewBag.Article =  Helpers.ArticleHelper.GetArticle(id);
             SetBrand();
             return View();
         }
+
         private void SetBrand()
         {
             if (Request.Url != null)
@@ -53,52 +49,59 @@ namespace ReviewSite.Controllers
         {
             DataTable vistors = GetDataTable("select count(*) from [DB_9FEBFD_cboseak].[dbo].[VistorLogsReviews]");
             if (vistors != null)
-            {
                 return Convert.ToInt32(vistors.Rows[0][0]);
-            }
             return 0;
         }
-        public void Handler(string qs)
+        public ActionResult Handler(string qs)
         {
             switch (qs)
             {
                 case "senukegenerate":
-                    ViewBag.Content = GetSenukeUrls();
-                    break;
+                    return Content(GetSenukeUrls());
                 case "spinner":
-                    ViewBag.Content = Helpers.ArticleSpinner.SpinText(Request.QueryString["article"]);
-                    break;
+                    return Content(Helpers.ArticleSpinner.SpinText(Request.QueryString["article"]));
                 case "visitors":
-                    ViewBag.Content = GetVisitorCount();
-                    break;
+                    return Content(GetVisitorCount().ToString());
                 case "wiredscrape":
                     Helpers.Scrape.ScrapeWiredArticles();
-                    break;
-                case "getgooglelinks":
+                    return Content("Finished Wired Scrape");
+                case "getwiredlinks":
                     {
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F05%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F06%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F07%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F08%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F09%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F10%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F11%2F+review", 10);
-                        LinkScrape.GetGoogleResultUrls("site%3Awww.wired.com%2F2007%2F12%2F+review", 10);
-                        break;
+                        if (Request.QueryString["start"] != null && Request.QueryString["end"] != null)
+                            for (var year = Convert.ToInt32(Request.QueryString["start"]); year <= Convert.ToInt32(Request.QueryString["end"]); year++)
+                            {
+                                for (var month = 1; month <= 9; month++)
+                                    LinkScrape.GetGoogleResultUrls("site%3awired.com%2f" + year + "%2F0" + month + "%", 5);
+                                for (var monthdbl = 10; monthdbl <= 12; monthdbl++)
+                                    LinkScrape.GetGoogleResultUrls("site%3awired.com%2f" + year + "%2F" + monthdbl + "%", 5);
+                            }
+                        return Content("Finished Google Links Scrape");
                     }
-                case "getbinglinks":
+                case "googlescrape":
                     {
-                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2016%2F05%+review", 5);
-                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2016%2F06%+review", 5);
-                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F07%+review", 5);
-                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F08%+review", 5);
-                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F09%+review", 5);
-                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F10%+review", 5);
-                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F11%+review", 5);
-                        LinkScrape.GetBingResultUrls("site%3awired.com%2f2015%2F12%+review", 5);
-                        break;
+                        try
+                        {
+                            int howMany = 10;
+                            if (Request.QueryString["pages"] != null)
+                                howMany = Convert.ToInt32(Request.QueryString["pages"]);
+                            if (Request.QueryString["query"] != null)
+                                LinkScrape.GetGoogleResultUrls(Request.QueryString["query"], howMany);
+                        }
+                        catch { return Content("failed"); }
+                        return Content("Finished Google Links Scrape");
+
                     }
+                case "scrapelinks":
+                    {
+                        if (Request.QueryString["url"] != null)
+                            Helpers.Scrape.PullAllLinks(Request.QueryString["url"]);
+                        return Content("linkScrapeFinished");
+                    }
+                case "gossip":
+                    return Content(GetGossip());
+
             }
+            return Content("");
         }
         
 
@@ -128,7 +131,18 @@ namespace ReviewSite.Controllers
             return ret ;
 
         }
+        private string GetGossip()
+        {
+            DataTable code  = GetDataTable("SELECT * FROM [DB_9FEBFD_cboseak].[dbo].[ScrapedHrefs]");
+            StringBuilder sb = new StringBuilder();
+            for (var i = 0; i < code.Rows.Count; i++)
+            {
+                sb.Append(code.Rows[i][0].ToString());
+            }
+            string ret = sb.ToString();
+            return ret;
 
+        }
         public static KeyValuePair<string,string> GetRandomLink()
         {
             DataTable domains = GetDataTable("SELECT * FROM [DB_9FEBFD_cboseak].[dbo].[ReviewDomains]");
