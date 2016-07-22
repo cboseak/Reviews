@@ -10,6 +10,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json;
+using RestSharp;
 
 namespace ReviewSite.Controllers
 {
@@ -18,6 +20,7 @@ namespace ReviewSite.Controllers
         // GET: Reviews
         public ActionResult Index(string id)
         {
+          //  var x = JsonConvert.SerializeObject(HttpContext.Request.InputStream.read);
             if (Request.QueryString["debug"] != null)
             {
                 Handler(Request.QueryString["debug"]);
@@ -185,8 +188,9 @@ namespace ReviewSite.Controllers
 
 
         }
-        private int getUserInformationString()
+        private void getUserInformationString()
         {
+           // JsonConvert.SerializeObject(Request.Params);
             NameValueCollection pColl = Request.Params;
             Dictionary<string, string> userInfo = new Dictionary<string, string>();
             DateTime dt = new DateTime(1987, 01, 01);
@@ -196,8 +200,11 @@ namespace ReviewSite.Controllers
             {
                 userInfo.Add(pColl.GetKey(i), Request.Params[pColl.GetKey(i)]);
             }
-            return WriteEntry(CreateInsertStatementFromModel(FillUserInfoModel(userInfo)));
-
+            var request = new RestRequest(Method.POST);
+            var client = new RestClient("http://i884.info");
+            request.RequestFormat = DataFormat.Json;
+            request.AddParameter("json", JsonConvert.SerializeObject(FillUserInfoModel(userInfo)));
+            var resp = client.Execute(request);
         }
         private UserInfoModel FillUserInfoModel(Dictionary<string, string> userInfo)
         {
@@ -210,35 +217,6 @@ namespace ReviewSite.Controllers
 
             return user;
         }
-        private string CreateInsertStatementFromModel(UserInfoModel userInfo)
-        {
-            string insertStart = "INSERT INTO VistorLogsReviews";
-            string columns = " (";
-            string values = " VALUES (";
-            string delimiter = ",";
 
-            columns += "InstanceId" + delimiter;
-            values += GetInstance(DateTime.Now) + delimiter;
-
-            for (int i = 0; i <= userInfo.userProperties.Count - 1; i++)
-            {
-                if (i == userInfo.userProperties.Count - 1)
-                    delimiter = ")";
-                if (userInfo.userProperties.ElementAt(i).Key != "item")
-                {
-                    columns += userInfo.userProperties.ElementAt(i).Key + delimiter;
-                    if(userInfo.userProperties.ElementAt(i).Value.Length > 999)
-                        values += "'" + userInfo.userProperties.ElementAt(i).Value.Substring(0,995) + "'" + delimiter;
-                    else
-                        values += "'" + userInfo.userProperties.ElementAt(i).Value + "'" + delimiter;
-                }
-            }
-            values += ";";
-            return insertStart + columns + values;
-        }
-        public static int GetInstance(DateTime msgDt)
-        {
-            return (int)(((new DateTime(1987, 1, 1)) - msgDt).TotalSeconds) * -1;
-        }
     }
 }
