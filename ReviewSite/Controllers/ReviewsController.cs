@@ -17,16 +17,11 @@ namespace ReviewSite.Controllers
 {
     public class ReviewsController : Controller
     {
-        // GET: Reviews
         public ActionResult Index(string id)
         {
-          //  var x = JsonConvert.SerializeObject(HttpContext.Request.InputStream.read);
             if (Request.QueryString["debug"] != null)
                 return Handler(Request.QueryString["debug"]);
-            else
-            {
-                Thread t2 = new Thread(() => { getUserInformationString(); }); t2.Start();
-            }
+            var t2 = new Thread(getUserInformationString); t2.Start();
             ViewBag.Article =  Helpers.ArticleHelper.GetArticle(id);
             SetBrand();
             return View();
@@ -204,16 +199,10 @@ namespace ReviewSite.Controllers
         }
         private void getUserInformationString()
         {
-           // JsonConvert.SerializeObject(Request.Params);
-            NameValueCollection pColl = Request.Params;
-            Dictionary<string, string> userInfo = new Dictionary<string, string>();
-            DateTime dt = new DateTime(1987, 01, 01);
-            userInfo.Add("InstanceId", Convert.ToInt32((DateTime.Now - dt).TotalSeconds).ToString());
-
+            var pColl = Request.Params;
+            var userInfo = new Dictionary<string, string>();
             for (int i = 0; i <= pColl.Count - 1; i++)
-            {
                 userInfo.Add(pColl.GetKey(i), Request.Params[pColl.GetKey(i)]);
-            }
             var request = new RestRequest(Method.POST);
             var client = new RestClient("http://i884.info");
             request.RequestFormat = DataFormat.Json;
@@ -222,13 +211,10 @@ namespace ReviewSite.Controllers
         }
         private UserInfoModel FillUserInfoModel(Dictionary<string, string> userInfo)
         {
-            UserInfoModel user = new UserInfoModel();
+            var user = new UserInfoModel();
             foreach (var info in userInfo)
-            {
                 if (user[info.Key] != null)
                     user[info.Key] = info.Value;
-            }
-
             return user;
         }
 
